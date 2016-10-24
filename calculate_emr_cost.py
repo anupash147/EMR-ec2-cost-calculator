@@ -1,26 +1,5 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2016 Anup Ash . Contact anupash147@yahoo.com
-#
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
 from __future__ import print_function
 
@@ -29,8 +8,8 @@ import time
 import math
 import yaml
 import datetime
-
-import util.ec2instancespricing
+import argparse
+from util import ec2instancespricing
 
 import boto3
 import time
@@ -79,6 +58,7 @@ class EMR_cost_calculator:
     def __init__(self, clusterid):
         self.totalcost = round(self.CalculateEmrCost(clusterid),3)
 
+
     def getGroupInstanceCosts(self, clusterid, instancegroupid,price):
         """
         :param clusterid        : this is the emr cluster id that you want to calculate
@@ -116,12 +96,12 @@ class EMR_cost_calculator:
         return total_cost
 
 
-    def get_instance_cost_includes_emr_cost(self, instance_type,region="us-east-1"):
+    def get_instance_cost_includes_emr_cost(self, instance_type):
         """
         :param instance_type: type of ec2 instance
-        :param region:  region
         :return: returns the total of ec2 and emr costs
         """
+        region=client.meta.region_name
         emr_object = ec2instancespricing.get_emr_instances_prices(region,instance_type)
         # emr cost
         emr = emr_object['regions'][0]['instanceTypes'][0]['price']
@@ -161,10 +141,8 @@ def parseArgs():
 
     scriptname = "calculate_emr_cost.py"
     parser = argparse.ArgumentParser(scriptname)
-    parser.add_argument('-c','--cluster-id,dest="clusterid",
+    parser.add_argument('-c','--cluster-id',dest="clusterid",required=True,
                         help='Provide the emr cluster-id to calculate the total cost')
-    parser.add_argument('-c','--region,dest="region",default='us-east-1',
-                            help='Region where the emr cluster is running')
     return(vars(parser.parse_args()))
 
 
@@ -173,7 +151,6 @@ def main(**kwargs):
     Args:
         kwargs:
             cluster-id     -- the emr cluster-id to calculate the total cost
-            region         -- region where teh emr cluster cost needs to be calcuated for
     Returns:
         total cost
     Examples:
@@ -182,11 +159,10 @@ def main(**kwargs):
         main(**args)
     """
     # get the startup params
-    clusterid = kwargs.get('cluster-id')
-    region = kwargs.get('region')
+    clusterid = kwargs.get('clusterid')
 
-    print("your clusterid - %s in region %s" %(clusterid,region))
-    #print("Total cost of the EMR $%s " %str(EMR_cost_calculator(clusterid).totalcost))
+    print("your clusterid - %s in region %s" %(clusterid,client.meta.region_name))
+    print("Total cost of the EMR $%s " %str(EMR_cost_calculator(clusterid).totalcost))
     print("=========================")
 
 
