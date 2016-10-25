@@ -1,6 +1,10 @@
 # EMR-ec2-cost-calculator
 This project is written in python. It calculates the EMR cluster cost by getting the spot and ondemand prices of the instances and adding up the emr charges.
 
+# Requires
+python3
+pip
+
 # How to use it ?
 * step 1 git clone the project
     > git clone https://github.com/anupash147/EMR-ec2-cost-calculator.git
