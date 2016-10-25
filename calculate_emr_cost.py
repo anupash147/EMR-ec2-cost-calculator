@@ -34,10 +34,22 @@ class Ec2timings:
         :param termination_ts: the termination time string
         :return: the lifetime of a single instance in hours
         """
-        date_format = '%Y-%m-%d %H:%M:%S.%f+00:00'
-        creation_ts = \
+        if len(creation_ts) == 32:
+            date_format = '%Y-%m-%d %H:%M:%S.%f+00:00'
+            creation_ts = \
             time.mktime(time.strptime(creation_ts, date_format))
-        termination_ts = \
+        else:
+            date_format = '%Y-%m-%d %H:%M:%S+00:00'
+            creation_ts = \
+            time.mktime(time.strptime(creation_ts, date_format))
+
+        if len(termination_ts) == 32:
+            date_format = '%Y-%m-%d %H:%M:%S.%f+00:00'
+            termination_ts = \
+            time.mktime(time.strptime(termination_ts, date_format))
+        else:
+            date_format = '%Y-%m-%d %H:%M:%S+00:00'
+            termination_ts = \
             time.mktime(time.strptime(termination_ts, date_format))
         return creation_ts, termination_ts
 
